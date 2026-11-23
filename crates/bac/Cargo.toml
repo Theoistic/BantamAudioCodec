@@ -1,0 +1,17 @@
+[package]
+name = "bantam-audio-codec"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+description = "BAC, the Bantam Audio Codec: a voice codec and labelled audio format (transcript, speakers, range tags). No dependencies."
+keywords = ["audio", "codec", "speech", "transcript", "lossless"]
+categories = ["multimedia::audio", "multimedia::encoding", "compression"]
+
+[lib]
+name = "bac"
+
+[dependencies]

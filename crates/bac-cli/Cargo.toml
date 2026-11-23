@@ -1,0 +1,23 @@
+[package]
+name = "bantam-audio-codec-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+description = "bac: the command line tool and previewer of the Bantam Audio Codec (encode, decode, label, play)."
+keywords = ["audio", "codec", "speech", "cli", "bac"]
+categories = ["multimedia::audio", "command-line-utilities"]
+
+[[bin]]
+name = "bac"
+path = "src/main.rs"
+
+[dependencies]
+bac.workspace = true
+bac-player.workspace = true
+
+[build-dependencies]
+bac-player.workspace = true

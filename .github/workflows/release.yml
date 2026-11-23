@@ -1,0 +1,97 @@
+# A tag vX.Y.Z: test, build `bac` for each platform, make the GitHub release, publish the crates to crates.io.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The tag is the crates' version
+        run: |
+          v=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -1)
+          if [ "v$v" != "$GITHUB_REF_NAME" ]; then
+            echo "the tag is $GITHUB_REF_NAME, Cargo.toml says $v"; exit 1
+          fi
+          for d in bac bac-player; do
+            grep -q "^$d = .*version = \"=$v\"" Cargo.toml || { echo "[workspace.dependencies] $d is not at =$v"; exit 1; }
+          done
+
+  build:
+    needs: check
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { os: windows-latest, target: x86_64-pc-windows-msvc }
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu }
+          - { os: macos-latest, target: aarch64-apple-darwin }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo test --workspace --locked
+      - run: cargo build --release --locked -p bantam-audio-codec-cli --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          name="bac-$GITHUB_REF_NAME-${{ matrix.target }}"
+          mkdir -p "dist/$name"
+          cp README.md LICENSE-MIT LICENSE-APACHE "dist/$name/"
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            cp "target/${{ matrix.target }}/release/bac.exe" "dist/$name/"
+            (cd dist && 7z a -tzip "$name.zip" "$name" > /dev/null)
+          else
+            cp "target/${{ matrix.target }}/release/bac" "dist/$name/"
+            tar -C dist -czf "dist/$name.tar.gz" "$name"
+          fi
+          rm -r "dist/$name"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bac-${{ matrix.target }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd dist && sha256sum * > SHA256SUMS)
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "BAC $GITHUB_REF_NAME" --generate-notes
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          # in dependency order; a version that is already there is skipped, so a failed run can be run again
+          for c in bantam-audio-codec bantam-audio-codec-player bantam-audio-codec-cli; do
+            if curl -sf -A "BantamAudioCodec release" "https://crates.io/api/v1/crates/$c/$v" > /dev/null; then
+              echo "$c $v is already on crates.io"
+            else
+              cargo publish -p "$c"
+            fi
+          done

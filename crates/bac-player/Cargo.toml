@@ -1,0 +1,18 @@
+[package]
+name = "bantam-audio-codec-player"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "../../README.md"
+description = "The BAC previewer: a window that plays a Bantam Audio Codec file and shows its transcript, word by word. Win32, no dependencies."
+keywords = ["audio", "player", "speech", "transcript", "bac"]
+categories = ["multimedia::audio", "gui"]
+
+[lib]
+name = "bac_player"
+
+[dependencies]
+bac.workspace = true
