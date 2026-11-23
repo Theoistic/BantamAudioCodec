@@ -69,16 +69,16 @@ container does not care; a later HEAD profile can carry another codec.
 ## Measured
 
 `tools/compare_codecs.py`: every codec on the same mono clips, ffmpeg 8.1 for the others (libopus with
-`-application voip`, FLAC at compression level 12). Quality numbers are from `bac compare` (metrics.rs): SNR,
-noise-to-mask ratio (NMR: the error against a rough masking threshold; lower is better, below 0 mostly hidden) and
-band distance (how far the energy per critical band is off; lower is better).
+`-application voip`, FLAC at compression level 12, its padding block not counted). Quality numbers are from
+`bac compare` (metrics.rs): SNR, noise-to-mask ratio (NMR: the error against a rough masking threshold; lower is
+better, below 0 mostly hidden) and band distance (how far the energy per critical band is off; lower is better).
 
 LibriSpeech test-clean, 40 clips spread over the speakers, 344 s, 16 kHz:
 
 | Codec | kbit/s | MB/hour | SNR dB | NMR dB | Band dB |
 |---|---:|---:|---:|---:|---:|
 | WAV | 256.0 | 115.2 | exact | | |
-| FLAC, level 12 | 147.2 | 66.3 | exact | | |
+| FLAC, level 12 | 139.6 | 62.8 | exact | | |
 | **BAC lossless** | **133.5** | **60.1** | exact | | |
 | Opus 16k | 16.0 | 7.2 | 7.9 | 5.6 | 2.97 |
 | **BAC -q 3** | 15.7 | 7.1 | 12.5 | 7.1 | 3.06 |
@@ -96,7 +96,7 @@ The jax voice set (Bantam-Voice, 60 clips, 323 s), brought to 16 kHz mono as the
 
 | Codec | kbit/s | MB/hour | SNR dB | NMR dB | Band dB |
 |---|---:|---:|---:|---:|---:|
-| FLAC, level 12 | 155.8 | 70.1 | exact | | |
+| FLAC, level 12 | 143.6 | 64.6 | exact | | |
 | **BAC lossless** | **135.8** | **61.1** | exact | | |
 | Opus 16k | 16.0 | 7.2 | 9.1 | 4.7 | 2.10 |
 | **BAC -q 3** | 16.4 | 7.4 | 13.9 | 7.6 | 3.45 |
@@ -108,8 +108,10 @@ The jax voice set (Bantam-Voice, 60 clips, 323 s), brought to 16 kHz mono as the
 
 What this says:
 
-- Lossless: 9 % under the best FLAC on LibriSpeech, 13 % on the jax voice.
-- Lossy, default quality 4: about 10 MB per hour, a seventh of FLAC.
+- Lossless: 4.4 % under the best FLAC on LibriSpeech, 5.4 % on the jax voice; on 86 longer jax clips 5.4 % at 16 kHz
+  and 5.2 % at 24 kHz (research-exp.md, 2.3). The first version of these tables said 9 % and 13 %: it counted the
+  8 kB of padding ffmpeg reserves in every FLAC file, 8 to 12 kbit/s on clips this short.
+- Lossy, default quality 4: about 10 MB per hour, a sixth of FLAC.
 - Against Opus on these numbers: level at about 30 kbit/s on LibriSpeech, a little behind there on the jax voice,
   and clearly behind below: on the jax voice Opus at 16 kbit/s measures like BAC at about 24. BAC keeps the
   waveform much closer at every rate (SNR), which is what its structure is good at.

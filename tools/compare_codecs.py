@@ -25,6 +25,25 @@ def run(*cmd):
     return r.stdout + r.stderr
 
 
+def flac_size(path):
+    """The FLAC file's size without its PADDING blocks: ffmpeg reserves 8 kB in every file, which on short clips
+    is several kbit/s that no FLAC encoder needs."""
+    with open(path, "rb") as f:
+        b = f.read()
+    if b[:4] != b"fLaC":
+        return len(b)
+    pos, padding = 4, 0
+    while pos + 4 <= len(b):
+        last, kind = b[pos] & 0x80, b[pos] & 0x7F
+        n = int.from_bytes(b[pos + 1:pos + 4], "big")
+        if kind == 1:
+            padding += 4 + n
+        pos += 4 + n
+        if last:
+            break
+    return len(b) - padding
+
+
 def clips(paths):
     out = []
     for p in paths:
@@ -75,7 +94,7 @@ def main():
             secs += dur
             add("wav (plain samples)", os.path.getsize(t("ref.wav")))
             run(*ff, "-i", t("ref.wav"), "-c:a", "flac", "-compression_level", "12", t("x.flac"))
-            add("flac -12", os.path.getsize(t("x.flac")))
+            add("flac -12", flac_size(t("x.flac")))
             run(a.bac, "encode", t("ref.wav"), "--lossless", "-o", t("x.bac"))
             add("bac lossless", os.path.getsize(t("x.bac")))
             for spec in filter(None, a.others.split(",")):

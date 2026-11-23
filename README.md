@@ -3,7 +3,7 @@
 A file format for voice: the audio, and in the same file what is said, who says it, and what the voice is doing
 when. Made for training speech recognition and speech synthesis, and for listening.
 
-- **Small.** Lossy at 7 to 50 kbit/s, or lossless at 9 to 13 % under FLAC. One bitstream does both.
+- **Small.** Lossy at 7 to 50 kbit/s, or lossless at about 5 % under FLAC. One bitstream does both.
 - **Streams.** A file plays while it arrives, a listener can join a live stream, damage costs one second.
 - **Labelled.** Transcript, word and phone alignment, speakers with voice profiles, and range tags such as
   `whisper`, `laughing` or `singing`, all on the audio's time line.
@@ -130,8 +130,8 @@ is 632 kB. The `laughing` tag was added by hand to show a range tag; everything 
 | | LibriSpeech, MB/hour | jax voice, MB/hour | |
 |---|---:|---:|---|
 | WAV | 115.2 | 115.2 | |
-| FLAC, level 12 | 66.3 | 70.1 | |
-| `bac --lossless` | 60.1 | 61.1 | exact |
+| FLAC, level 12 | 62.8 | 64.6 | without the 8 kB padding block ffmpeg puts in every file |
+| `bac --lossless` | 60.1 | 61.1 | exact; 4.4 % and 5.4 % under FLAC |
 | `bac -q 6` | 15.8 | 16.3 | error at about the masking threshold (noise-to-mask ratio 0 dB) |
 | `bac -q 4` (default) | 9.9 | 10.3 | by noise-to-mask ratio like Opus at 15 to 18 kbit/s, at 22 kbit/s |
 | `bac -q 3` | 7.1 | 7.4 | |
