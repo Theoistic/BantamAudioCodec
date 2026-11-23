@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/bac", "crates/bac-cli", "crates/bac-player"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Theodor Solbjorg (Theoistic)"]
@@ -11,10 +11,11 @@ repository = "https://github.com/Theoistic/BantamAudioCodec"
 homepage = "https://github.com/Theoistic/BantamAudioCodec"
 readme = "README.md"
 
-# the crates of this workspace, as the others name them: one version for all three
+# the crates of this workspace, as the others name them. Only the library is published (crates.io);
+# the player and the command line are one program, bac.exe, released on GitHub.
 [workspace.dependencies]
-bac = { package = "bantam-audio-codec", path = "crates/bac", version = "=0.1.0" }
-bac-player = { package = "bantam-audio-codec-player", path = "crates/bac-player", version = "=0.1.0" }
+bac = { package = "bantam-audio-codec", path = "crates/bac" }
+bac-player = { package = "bantam-audio-codec-player", path = "crates/bac-player" }
 
 [profile.release]
 opt-level = 3

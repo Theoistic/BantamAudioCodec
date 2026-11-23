@@ -1,3 +1,5 @@
 target/
 samples/
 __pycache__/
+installer/bac.ico
+dist/

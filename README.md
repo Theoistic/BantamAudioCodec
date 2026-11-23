@@ -18,16 +18,12 @@ BAC is the audio format of the Bantam speech models, and a project of its own.
 
 ## Install
 
-The program: a build for Windows, Linux or macOS from the
-[releases](https://github.com/Theoistic/BantamAudioCodec/releases), or
+**The program.** `bac-setup-…-x86_64.exe` from the [releases](https://github.com/Theoistic/BantamAudioCodec/releases)
+installs `bac.exe` for the current user (no administrator needed): a Start menu entry, `.bac` files opening in the
+previewer, and `bac` on the PATH, each of the last two a box to tick. The same release has `bac.exe` alone in a zip,
+and builds for Linux and macOS; there the previewer window is not there yet and `bac` is the command-line tool.
 
-```bash
-cargo install bantam-audio-codec-cli      # gives `bac`
-```
-
-The previewer window is Windows only so far; on Linux and macOS `bac` is the command-line tool.
-
-The library, in Rust:
+**The library**, in Rust, from [crates.io](https://crates.io/crates/bantam-audio-codec):
 
 ```toml
 [dependencies]
@@ -40,12 +36,6 @@ let opts = bac::EncOpts { quality: 4.0, ..Default::default() };   // or lossless
 let file = bac::encode(&pcm, &opts, &bac::Labels::default())?;
 let (head, labels, back) = bac::decode(&file)?;
 ```
-
-| crate | |
-|---|---|
-| [`bantam-audio-codec`](https://crates.io/crates/bantam-audio-codec) | the codec and the format: encode, decode, stream, labels |
-| [`bantam-audio-codec-player`](https://crates.io/crates/bantam-audio-codec-player) | the previewer as a library (Win32) |
-| [`bantam-audio-codec-cli`](https://crates.io/crates/bantam-audio-codec-cli) | the `bac` program |
 
 ## The previewer
 
@@ -157,9 +147,10 @@ are units of their own.
 | | |
 |---|---|
 | `crates/bac/` | the library (crate `bantam-audio-codec`): `codec.rs` (bitstream, decoder), `encoder.rs`, `range.rs`, `lpc.rs`, `container.rs`, `labels.rs`, WAV and FLAC readers, `metrics.rs`. 30 tests |
-| `crates/bac-player/` | the previewer (crate `bantam-audio-codec-player`): `doc.rs` (rows and word times), `view.rs` (drawing, clicks, keys), `canvas.rs`, `surface.rs`, `audio.rs`, `window.rs`, `icon.rs`. Win32 and GDI text, software drawing. Windows only so far. 12 tests |
-| `crates/bac-cli/` | the `bac` program (crate `bantam-audio-codec-cli`): the commands, and the previewer when no command is given |
-| `.github/workflows/` | `ci.yml` builds and tests on Windows, Linux and macOS; `release.yml` turns a tag `vX.Y.Z` into a GitHub release with the programs and publishes the three crates |
+| `crates/bac-player/` | the previewer, part of `bac.exe` (not published): `doc.rs` (rows and word times), `view.rs` (drawing, clicks, keys), `canvas.rs`, `surface.rs`, `audio.rs`, `window.rs`, `icon.rs`. Win32 and GDI text, software drawing. Windows only so far. 12 tests |
+| `crates/bac-cli/` | the `bac` program (not published): the commands, and the previewer when no command is given |
+| `installer/bac.iss` | the Windows installer (Inno Setup) |
+| `.github/workflows/` | `ci.yml` builds and tests on Windows, Linux and macOS; `release.yml` turns a tag `vX.Y.Z` into a GitHub release with the installer and the programs, and publishes the library to crates.io |
 | `docs/Format.md` | the format, complete enough to write a second decoder from |
 | `docs/Research.md` | the codecs looked at, why Opus, FLAC and AV1 are the templates, measurements, tuning record, what is next |
 | `tools/compare_codecs.py` | BAC next to FLAC, Opus, MP3 and Vorbis on the same clips (needs ffmpeg) |
@@ -175,16 +166,17 @@ the same format.
 
 ## Release
 
-The version is `version` in the root `Cargo.toml`, one for all three crates; the two `version`s under
-`[workspace.dependencies]` follow it. Raise all three, commit, then
+The version is `version` in the root `Cargo.toml`. Raise it, commit, then
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.1
+git push origin v0.1.1
 ```
 
-The tag builds `bac` for Windows, Linux and macOS, makes the GitHub release with them, and publishes the crates
-to crates.io. Publishing needs the repository secret `CARGO_REGISTRY_TOKEN` (a crates.io API token).
+The tag builds `bac` for Windows, Linux and macOS and the Windows installer, makes the GitHub release with them, and
+publishes `bantam-audio-codec` to crates.io (with the repository secret `CARGO_REGISTRY_TOKEN`). The player and the
+command line are one program, `bac.exe`, and are released only on GitHub. Run by hand (Actions, release, Run
+workflow), the same workflow builds everything and keeps it as the run's artifacts, without releasing.
 
 ## License
 

@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "bantam-audio-codec"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "bantam-audio-codec-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bantam-audio-codec",
  "bantam-audio-codec-player",
@@ -16,7 +16,7 @@ dependencies = [
 
 [[package]]
 name = "bantam-audio-codec-player"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bantam-audio-codec",
 ]

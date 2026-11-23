@@ -5,11 +5,8 @@ edition.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-homepage.workspace = true
-readme = "../../README.md"
-description = "The BAC previewer: a window that plays a Bantam Audio Codec file and shows its transcript, word by word. Win32, no dependencies."
-keywords = ["audio", "player", "speech", "transcript", "bac"]
-categories = ["multimedia::audio", "gui"]
+description = "The BAC previewer: a window that plays a BAC file and shows its transcript, word by word. Part of bac.exe. Win32, no dependencies."
+publish = false
 
 [lib]
 name = "bac_player"
